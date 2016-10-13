@@ -58,7 +58,7 @@ public class listGroceries extends AppCompatActivity implements Serializable {
                     sub.setClickable(false);
                 }else{
 
-                    errorReport.setText("");
+                    errorReport.setText(" ");
                     sub.setClickable(true);
 
                 }
