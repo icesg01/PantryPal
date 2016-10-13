@@ -33,7 +33,7 @@ import java.util.List;
 public class listGroceries extends AppCompatActivity implements Serializable {
     EditText name;
     EditText price;
-    int count = 0;
+    int count = 1;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
