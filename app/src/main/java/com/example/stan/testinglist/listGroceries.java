@@ -54,7 +54,7 @@ public class listGroceries extends AppCompatActivity implements Serializable {
             public void afterTextChanged(Editable s) {
                 final String regExp = "^\\$(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
                 if(!priceText.getText().toString().matches(regExp)){
-                    errorReport.setText("pleasse enter a valide price");
+                    errorReport.setText("pleasse enter a valide price29");
                     sub.setClickable(false);
                 }else{
 
@@ -70,7 +70,7 @@ public class listGroceries extends AppCompatActivity implements Serializable {
                 // TODO Auto-generated method stub
                 final String regExp = "^\\s*(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
                 if(!priceText.getText().toString().matches(regExp)){
-                    errorReport.setText("pleasse enter a valide price");
+                    errorReport.setText("pleasse enter a valide price29");
                     sub.setClickable(false);
                 }else{
 
@@ -174,7 +174,10 @@ public class listGroceries extends AppCompatActivity implements Serializable {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openCamera();
+                Intent intent = new Intent(listGroceries.this,accessDatabase.class);
+                startActivity(intent);
+
+
             }
         });
 
