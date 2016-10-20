@@ -103,7 +103,7 @@ public class listGroceries extends AppCompatActivity implements Serializable {
                 }else{
                     count++;
                     if(count >= 2) {
-                        errorReport.setText("");
+                        errorReport.setText("a");
                         sub.setClickable(true);
                     }
                 }
