@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +32,7 @@ import java.util.List;
 public class Second extends AppCompatActivity {
 
     ArrayList<String> newList = new ArrayList<>();
+
     ArrayAdapter adapter;
     ListView newListView;
     DataBaseHelperClass myDbHelper;
@@ -41,6 +47,13 @@ public class Second extends AppCompatActivity {
 
         newListView = (ListView) findViewById(R.id.mobile_first);
         myDbHelper = new DataBaseHelperClass(this);
+
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //getSupportActionBar().setTitle(Html.fromHtml("<font color='#ffffff'>Pantry Pal </font>"));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent i = getIntent();
 
@@ -103,7 +116,7 @@ else {
 
             newListView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
-
+adapter.getItem(0);
 
         ImageButton newImage = (ImageButton)findViewById(R.id.imageButton);
 
@@ -171,11 +184,31 @@ else {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case android.R.id.home:
+
+               Intent newIntent = new Intent(Second.this,listGroceries.class);
+                startActivity(newIntent);
+                return true;
+
+
+
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
 
     public String getName(){
         return name;
     }
-
 
 
 

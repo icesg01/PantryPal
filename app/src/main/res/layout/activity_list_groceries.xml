@@ -3,11 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#707070"
     android:clickable="true"
     android:focusableInTouchMode="true"
-android:padding="16dp"
+    android:padding="0dp"
     tools:context="com.example.stan.testinglist.listGroceries">
+
+
+
+   <android.support.v7.widget.Toolbar
+       android:id="@+id/toolbar"
+
+       android:layout_width="match_parent"
+       android:layout_height="?attr/actionBarSize"
+       android:background="@color/colorPrimaryDark"
+       android:elevation="4dp"
+
+       android:theme="@style/customStyle"
+       app:popupTheme="@style/Theme.AppCompat.NoActionBar"/>
 
    <ListView
 
@@ -15,13 +29,14 @@ android:padding="16dp"
 android:divider="@android:color/transparent"
        android:dividerHeight="20.0dp"
    android:textColor="#fff"
+       android:padding="16dp"
        android:layout_width="match_parent"
        android:id="@+id/mobile_first"
        android:layout_height="300dp"
-       android:layout_alignParentTop="true"
        android:layout_alignParentLeft="true"
        android:layout_alignParentStart="true"
-       android:layout_above="@+id/imageButton">
+       android:layout_above="@+id/imageButton"
+       android:layout_below="@+id/toolbar">
 
    </ListView>
 <TextView

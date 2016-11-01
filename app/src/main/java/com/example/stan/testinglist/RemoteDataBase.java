@@ -2,8 +2,10 @@ package com.example.stan.testinglist;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ArrayAdapter;
 
 import org.apache.http.params.HttpParams;
 
@@ -18,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 
 /**
@@ -26,22 +29,85 @@ import java.net.URLEncoder;
 public class RemoteDataBase extends AsyncTask<String,Void,String> {
 AlertDialog alertDialog;
     Context context;
-
-    RemoteDataBase (Context ctx){
+    ArrayList<String> returnArray;
+    String JSon;
+    ArrayAdapter<String> adapter;
+    RemoteDataBase (Context ctx,ArrayList<String> returnArray,ArrayAdapter<String> adapter){
 
         context = ctx;
-
+        this.JSon = JSon;
+        this.adapter = adapter;
+        this.returnArray = returnArray;
     }
 
 
     @Override
     protected String doInBackground(String... params) {
-    String type = params[0];
-        String user_name = params[1];
-        String password = params[2];
-        String login_url = "http://www.sullens.net/~sice/PHP5/connectToAndroid.php";
-        if(type.equals("login")){
+        ArrayList<String> namePrice = new ArrayList<>();
+        String type = params[0];
 
+        String login_url = "http://www.sullens.net/~sice/PHP5/connectToAndroid.php";
+        String groceryGetter = "http://www.sullens.net/~sice/PHP5/getGrocery.php";
+        String getPrice = "http://www.sullens.net/~sice/PHP5/getPrice.php";
+
+        if (type.equals("selectFromList")) {
+
+            String name = params[1];
+            try {
+                URL url = new URL(getPrice);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String post_data = URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name, "UTF-8");
+
+                bufferedWriter.write(post_data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String result = "";
+                String line = "";
+
+
+
+
+
+
+                while ((line = bufferedReader.readLine()) != null) {
+                    String newLine = line;
+                    returnArray.add(newLine);
+                    adapter.notifyDataSetChanged();
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+
+                return namePrice.get(0);
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+
+
+
+
+
+
+        if(type.equals("login")){
+            String user_name = params[1];
+            String password = params[2];
             try{
                 URL url = new URL(login_url);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -62,13 +128,13 @@ AlertDialog alertDialog;
                 String result = "";
                 String line = "";
                 while((line = bufferedReader.readLine()) != null){
-                    result += line;
+                   namePrice.add(line);
                 }
                 bufferedReader.close();
                 inputStream.close();
                 httpURLConnection.disconnect();
 
-                return result;
+                return namePrice.get(0);
 
 
             }catch(MalformedURLException e){
@@ -79,9 +145,58 @@ AlertDialog alertDialog;
 
 
 
+        }
+
+        if (type.equals("grocery")){
+            String name = params[1];
+
+try{
+            URL url = new URL(groceryGetter);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+            String post_data = URLEncoder.encode("name","UTF-8")+"="+URLEncoder.encode(name,"UTF-8");
+
+            bufferedWriter.write(post_data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"iso-8859-1"));
+            String result = "";
+            String line = "";
+            int x = 0;
+            StringBuilder sb = new StringBuilder();
+            while((line = bufferedReader.readLine()) != null){
+
+                sb.append(line + "\n");
+                namePrice.add(line);
+                x++;
+            }
+    result = sb.toString();
+            bufferedReader.close();
+            inputStream.close();
+            httpURLConnection.disconnect();
+
+            return result;
+
+
+        }catch(MalformedURLException e){
+            e.printStackTrace();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+
+
 
 
         }
+
+
         return null;
 
     }
@@ -91,17 +206,38 @@ AlertDialog alertDialog;
 
     protected void onPreExecute(){
 
-       alertDialog = new AlertDialog.Builder(context).create();
-        alertDialog.setTitle("login status");
+
 
     }
 
     @Override
     protected void onPostExecute(String result) {
-        alertDialog.setMessage(result);
-        alertDialog.show();
-    }
 
+
+        // I felt like this needed commenting... ok so in order to read the results seperatly
+        // i had to setup in this way because i did not feel like writing the code all over again
+        // to use a JSon array, instead  i just read the php files output as one giant string
+        // and in the php file added an echo to "end" this method goes until it reads the string
+        // end and then takes the substring up to the point right before it and adds it to the listview
+        // currentPosition is a reference to where we are on this monsterous string
+    JSon = result;
+    int currentPosition = 0;
+        if (result != null) {
+            if (result.length() > 1) {
+                for (int x = 0; x < result.length() - 2; x++) {
+                    if(result.substring(x,x+3).equals("end")){
+                        returnArray.add(result.substring(currentPosition,x));
+                        currentPosition = x + 3;
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+
+
+        }
+        adapter.notifyDataSetChanged();
+    }
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);

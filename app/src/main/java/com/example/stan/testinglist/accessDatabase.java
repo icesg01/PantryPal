@@ -26,13 +26,13 @@ protected void onCreate(Bundle savedInstanceState){
     public void onLogin(View view){
 
 
-        String bob = "sice10";
-        String password = "sice10";
-        String type = "login";
-        RemoteDataBase dataBase = new RemoteDataBase(this);
-
-
-        dataBase.execute(type,bob,password);
+//        String bob = "sice10";
+//        String password = "sice10";
+//        String type = "login";
+//        RemoteDataBase dataBase = new RemoteDataBase(this);
+//
+//
+//        dataBase.execute(type,bob,password);
 
 
 

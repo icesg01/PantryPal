@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,9 @@ import java.util.List;
 public class listGroceries extends AppCompatActivity implements Serializable {
     EditText name;
     EditText price;
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> dataBaseResults;
+    ListView dataBase;
     int count = 1;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,58 +48,74 @@ public class listGroceries extends AppCompatActivity implements Serializable {
         name = (EditText) findViewById(R.id.Name);
         price = (EditText) findViewById(R.id.editText2);
         final Button image = (Button)findViewById(R.id.button4);
+        dataBase = (ListView) findViewById(R.id.dataBaseResults);
+        dataBaseResults = new ArrayList<String>();
+
+        adapter = new ArrayAdapter<String> (getApplicationContext(),R.layout.databaselist,dataBaseResults);
+
+        dataBase.setAdapter(adapter);
+
+        dataBaseResults.add("");
+
+        dataBase.setClickable(true);
+
+
+
+
 
         final EditText priceText = (EditText) findViewById(R.id.editText2);
         final TextView errorReport = (TextView) findViewById(R.id.error);
 
-        priceText.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                final String regExp = "^\\$(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
-                if(!priceText.getText().toString().matches(regExp)){
-                    errorReport.setText("pleasse enter a valide price29");
-                    sub.setClickable(false);
-                }else{
-
-                    errorReport.setText(" ");
-                    sub.setClickable(true);
-
-                }
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // TODO Auto-generated method stub
-                final String regExp = "^\\s*(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
-                if(!priceText.getText().toString().matches(regExp)){
-                    errorReport.setText("pleasse enter a valide price29");
-                    sub.setClickable(false);
-                }else{
-
-                        errorReport.setText("");
-                        sub.setClickable(true);
-
-                }
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-
-
-
-
-            }
-
-        });
+//        priceText.addTextChangedListener(new TextWatcher() {
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                final String regExp = "^\\$(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
+//                if(!priceText.getText().toString().matches(regExp)){
+//                    errorReport.setText("pleasse enter a valide price29");
+//                    sub.setClickable(false);
+//                }else{
+//
+//                    errorReport.setText(" ");
+//                    sub.setClickable(true);
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                // TODO Auto-generated method stub
+//                final String regExp = "^\\s*(?=.*[1-9])\\d*(?:\\.\\d{1,2})?\\s*$";
+//                if(!priceText.getText().toString().matches(regExp)){
+//                    errorReport.setText("pleasse enter a valide price29");
+//                    sub.setClickable(false);
+//                }else{
+//
+//                        errorReport.setText("");
+//                        sub.setClickable(true);
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//
+//
+//
+//
+//            }
+//
+//        });
 
         name.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void afterTextChanged(Editable s) {
+
+
 
                 if(name.getText().toString().equals("")){
                     errorReport.setText("pleasse enter a name for the product");
@@ -104,6 +124,9 @@ public class listGroceries extends AppCompatActivity implements Serializable {
                     count++;
                     if(count >= 2) {
                         errorReport.setText("");
+
+
+
                         sub.setClickable(true);
                     }
                 }
@@ -113,6 +136,8 @@ public class listGroceries extends AppCompatActivity implements Serializable {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // TODO Auto-generated method stub
+
+
 
                 if(name.getText().toString().equals("")){
                     errorReport.setText("pleasse enter a name for the product");
@@ -130,7 +155,16 @@ public class listGroceries extends AppCompatActivity implements Serializable {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                dataBaseResults.clear();
+                adapter.notifyDataSetChanged();
+                String groceryItem = name.getText().toString();
+                String password = "sice10";
+                String type = "grocery";
+                RemoteDataBase dataBase = new RemoteDataBase(listGroceries.this,dataBaseResults,adapter);
 
+
+                dataBase.execute(type,groceryItem);
+                adapter.notifyDataSetChanged();
 
 
 
@@ -140,6 +174,27 @@ public class listGroceries extends AppCompatActivity implements Serializable {
 
 
 
+
+        dataBase.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                String[] results = new String[2];
+                RemoteDataBase dataBase2 = new RemoteDataBase(listGroceries.this,dataBaseResults,adapter);
+
+                dataBase2.execute("selectListItem",name.getText().toString());
+                adapter.notifyDataSetChanged();
+
+
+
+
+
+
+
+
+            }
+        });
 
 
 
@@ -174,8 +229,14 @@ public class listGroceries extends AppCompatActivity implements Serializable {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(listGroceries.this,accessDatabase.class);
-                startActivity(intent);
+//                String groceryItem = name.getText().toString();
+//                String password = "sice10";
+//                String type = "grocery";
+//                RemoteDataBase dataBase = new RemoteDataBase(listGroceries.this,dataBaseResults,adapter);
+//
+//
+//                dataBase.execute(type,groceryItem);
+//                adapter.notifyDataSetChanged();
 
 
             }
@@ -221,5 +282,24 @@ public class listGroceries extends AppCompatActivity implements Serializable {
         }
 
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+
+        super.onSaveInstanceState(outState);
+
+        outState.putStringArrayList("dataBaseResults",dataBaseResults);
+
+
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        dataBaseResults = (ArrayList<String>) savedInstanceState.getStringArrayList("dataBaseResults");
+
+
+
+    }
+
 
 }
