@@ -5,9 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
+import android.webkit.HttpAuthHandler;
 import android.widget.ArrayAdapter;
 
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -105,6 +109,7 @@ AlertDialog alertDialog;
 
 
 
+
         if(type.equals("login")){
             String user_name = params[1];
             String password = params[2];
@@ -151,6 +156,7 @@ AlertDialog alertDialog;
             String name = params[1];
 
 try{
+
             URL url = new URL(groceryGetter);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
@@ -160,24 +166,29 @@ try{
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
             String post_data = URLEncoder.encode("name","UTF-8")+"="+URLEncoder.encode(name,"UTF-8");
 
+
             bufferedWriter.write(post_data);
             bufferedWriter.flush();
             bufferedWriter.close();
             outputStream.close();
             InputStream inputStream = httpURLConnection.getInputStream();
+
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"iso-8859-1"));
             String result = "";
             String line = "";
+
             int x = 0;
             StringBuilder sb = new StringBuilder();
             while((line = bufferedReader.readLine()) != null){
 
-                sb.append(line + "\n");
+                sb.append(line);
                 namePrice.add(line);
                 x++;
             }
     result = sb.toString();
-            bufferedReader.close();
+
+
+    bufferedReader.close();
             inputStream.close();
             httpURLConnection.disconnect();
 
@@ -214,28 +225,38 @@ try{
     protected void onPostExecute(String result) {
 
 
-        // I felt like this needed commenting... ok so in order to read the results seperatly
-        // i had to setup in this way because i did not feel like writing the code all over again
-        // to use a JSon array, instead  i just read the php files output as one giant string
-        // and in the php file added an echo to "end" this method goes until it reads the string
-        // end and then takes the substring up to the point right before it and adds it to the listview
-        // currentPosition is a reference to where we are on this monsterous string
+
     JSon = result;
-    int currentPosition = 0;
-        if (result != null) {
-            if (result.length() > 1) {
-                for (int x = 0; x < result.length() - 2; x++) {
-                    if(result.substring(x,x+3).equals("end")){
-                        returnArray.add(result.substring(currentPosition,x));
-                        currentPosition = x + 3;
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
+        try {
+            System.out.println(result);
+            JSONObject jsonRootObject = new JSONObject(result);
+            JSONArray jsonArray = jsonRootObject.optJSONArray("json");
+            for(int x = 0; x < jsonArray.length();x++){
+            JSONObject jsonObject = jsonArray.getJSONObject(x);
+            String printme = jsonObject.optString("name") + "  " + jsonObject.optString("price");
 
 
+            returnArray.add(printme);}
+            adapter.notifyDataSetChanged();
 
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+//    int currentPosition = 0;
+//        if (result != null) {
+//            if (result.length() > 1) {
+//                for (int x = 0; x < result.length() - 2; x++) {
+//                    if(result.substring(x,x+3).equals("end")){
+//                        returnArray.add(result.substring(currentPosition,x));
+//                        currentPosition = x + 3;
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                }
+//            }
+//
+//
+//
+//        }
         adapter.notifyDataSetChanged();
     }
     @Override
